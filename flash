@@ -1,0 +1,13 @@
+#!/bin/zsh -e
+
+sudo echo hi
+
+echo -n waiting...
+while ! (exec 2>/dev/null; ls /dev/disk/by-uuid/000*); do
+	echo -n '.'
+	sleep 1
+done
+
+sudo mount -ouid=1000 /dev/disk/by-uuid/000* /mnt/usb
+
+cargo run --release
