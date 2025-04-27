@@ -5,15 +5,18 @@
 use crate::keymap::*;
 use crate::steno::Packet as StenoPacket;
 use core::mem::take;
+use usbd_hid::descriptor::KeyboardReport;
+
+#[cfg(not(test))]
 use embassy_rp::{
     gpio::{Input, OutputOpenDrain},
     pwm::{Pwm, SetDutyCycle},
 };
+#[cfg(not(test))]
 use embassy_time::{
     block_for,
     Duration,
 };
-use usbd_hid::descriptor::KeyboardReport;
 
 #[derive(Clone, Copy, Default)]
 pub struct MatrixState {
@@ -39,6 +42,7 @@ const MIC_MUTE_KEY: HidKeyCode = 198;  // bodged in here as footswitch function
     // however, 198 does map to keycode 248 in wayland (for whatever reason).
     // so now i'm just using bindcode instead of bindsym in sway, which i guess is fine.
 
+#[cfg(not(test))]
 pub struct Matrix<'a> {
     held_keys: HeldKeys,
     steno_packet: StenoPacket,
@@ -46,6 +50,7 @@ pub struct Matrix<'a> {
     pins: Pins<'a>,
 }
 
+#[cfg(not(test))]
 pub struct Pins<'a> {
     pub scan_led: Pwm<'a>,
     pub status_led: Pwm<'a>,
@@ -54,17 +59,20 @@ pub struct Pins<'a> {
     pub pedal: Input<'a>,
 }
 
+#[cfg(not(test))]
 trait ConvenientPwm {
     fn on(&mut self);
     fn off(&mut self);
     fn pwm_duty_u16(&mut self, duty: u16);  // TODO is it actually out of a u16?
 }
+#[cfg(not(test))]
 impl ConvenientPwm for Pwm<'_> {
     fn on(&mut self) { self.set_duty_cycle_fully_on().expect("pwm"); }
     fn off(&mut self) { self.set_duty_cycle_fully_off().expect("pwm"); }
     fn pwm_duty_u16(&mut self, duty: u16) { self.set_duty_cycle(duty).expect("pwm"); }
 }
 
+#[cfg(not(test))]
 impl<'a> Matrix<'a> {
     pub fn new(pins: Pins<'a>) -> Self {
         Matrix {
@@ -200,6 +208,7 @@ impl<'a> Matrix<'a> {
 struct HeldKeys ([KeyHold; HELD_KEYS_LIMIT]);
 
 #[derive(Default)]
+#[cfg_attr(test, derive(Clone, Copy, Debug, PartialEq))]
 struct KeyHold {
     debounce_count: u8,
     in_scancode: ScanCode,
@@ -257,4 +266,17 @@ impl HeldKeys {
             }
         }
     }
+}
+
+#[test]
+fn test_decrement_holds() {
+    let mut holds = HeldKeys ([Default::default(); HELD_KEYS_LIMIT]);
+    holds.0[0] = KeyHold { in_scancode: (0,0), mapping: Thing::Inactive, debounce_count: 3 };
+    holds.0[1] = KeyHold { in_scancode: (0,1), mapping: Thing::Inactive, debounce_count: 1 };
+    holds.0[2] = KeyHold { in_scancode: (0,2), mapping: Thing::Inactive, debounce_count: 4 };
+    holds.decrement_holds();
+    assert_eq!(holds.0[0], KeyHold { in_scancode: (0,0), mapping: Thing::Inactive, debounce_count: 2 });
+    assert_eq!(holds.0[1], KeyHold { in_scancode: (0,2), mapping: Thing::Inactive, debounce_count: 3 });
+    assert_eq!(holds.0[2], Default::default());
+    assert_eq!(holds.0[HELD_KEYS_LIMIT - 1], KeyHold { in_scancode: (0,1), mapping: Thing::Inactive, debounce_count: 0 });
 }

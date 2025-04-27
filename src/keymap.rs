@@ -15,6 +15,7 @@ type HidKey = (HidKeyCode, HidModifiers);
 
 /// A Thing which a keypress should Do
 #[derive(Clone, Copy, Debug, Default)]
+#[cfg_attr(test, derive(PartialEq))]
 pub enum Thing {
     RealKey(HidKey),
     StenoKey(StenoPacketCode),

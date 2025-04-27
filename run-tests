@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# Since we are writing #[no_std] code, #[test] is not usable by default as the test harness build requires std.
+#
+# However, this doesn't mean unit tests can't be used.
+#
+# This is a hack whereby `cargo test` is instead run on a build for the host instead of the embedded system, so that #[test] code (that isn't directly embedded-related) can run natively and can use std.
+#
+# Also:
+# * `--lib` tests code only in the tree of src/lib.rs (here explicitly to load tests), ignoring src/main.rs (which is inherently hardware-related code).
+# * `--no-default-features` disables all the dependencies (in Cargo.toml) which pertain to hardware features.
+# * some modules which have tests and are loaded by `lib.rs` also have hardware-related code which must be isolated with #[cfg(not(test))]
+# * `lib.rs` itself must have #![cfg_attr(not(test), no_std)], in order to let #[test] work but not upset the regular #![no_std] bin build
+
+# Sadly there is no native way in Cargo to default to a particular target triple only for bin and not lib.
+# So, instead we have the default (embedded) target set in .cargo/config.toml to make the bin build work.
+# Then, we must override back to the host triple here for lib to work in test configuration:
+#
+host_target_triple="$(rustc --version --verbose | perl -lne 's[host: ][] and print')"
+exec cargo test --target "$host_target_triple" --no-default-features --lib
