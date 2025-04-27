@@ -9,14 +9,14 @@ use crate::rmk::keycode::KeyCode::*;
 use crate::steno::{KeyCode as StenoKeyCode, PacketCode as StenoPacketCode};
 use core::marker::Copy;
 
-type HidKeyCode = u8;
-type Modifiers = u8;
-type Key = (HidKeyCode, Modifiers);
+pub type HidKeyCode = u8;
+pub type HidModifiers = u8;
+type HidKey = (HidKeyCode, HidModifiers);
 
 /// A Thing which a keypress should Do
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub enum Thing {
-    RealKey(Key),
+    RealKey(HidKey),
     StenoKey(StenoPacketCode),
     LeftSymbolKey,
     RightSymbolKey,
@@ -24,6 +24,7 @@ pub enum Thing {
     FunctionKey,
     DvorakToggle,
     StenoToggle,
+    #[default]
     Inactive,
 }
 

@@ -52,7 +52,13 @@ async fn main(spawner: Spawner) {
         pin.set_schmitt(true);
     }
 
-    let matrix = scan::Matrix::new(led_pin_onboard, led_pin_front, row_pins, column_pins, pedal_pin);
+    let matrix = scan::Matrix::new(scan::Pins {
+        scan_led: led_pin_onboard,
+        status_led: led_pin_front,
+        rows: row_pins,
+        columns: column_pins,
+        pedal: pedal_pin,
+    });
     spawner.spawn(run_matrix(matrix)).expect("spawn matrix");
 
     let usb_driver = embassy_rp::usb::Driver::new(p.USB, usb::Irqs);
