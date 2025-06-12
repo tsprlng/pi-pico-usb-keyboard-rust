@@ -136,9 +136,9 @@ pub const LAYER_NAVIGATION: Layer = [
     rev([k(F14), k(F11), k(F6), k(F5), k(F4), DFA]),
     rev([k(F13), k(F10), k(F3), k(F2), k(F1), DFA]),
     rev([k(LShift), Thing::FunctionKey, k(RGui), k(LAlt), k(LCtrl), Thing::LeftSymbolKey]),
-        [k(Delete), k(U), k(I), k(O), k(P), DFA],
-        [DFA, k(Left), k(Down), k(UP), k(Right), k(Enter)],
-        [DFA, k(Home), k(PageDown), k(PageUp), k(End), Thing::NavKey],
+        [k(Delete), DFA, DFA, DFA, DFA, DFA],
+        [k(Backspace), k(Left), k(Down), k(Up), k(Right), k(Enter)],
+        [k(Tab), k(Home), k(PageDown), k(PageUp), k(End), Thing::NavKey],
         [Thing::RightSymbolKey, k(Space), k(LGui), k(RCtrl), k(RAlt), k(RShift)],
 ];
 
