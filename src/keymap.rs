@@ -3,6 +3,8 @@
 //!
 //! Intimately related to [crate::scan], which uses these definitions to actually scan for and
 //! interpret physical key presses.
+//!
+//! The layer definitions are explained at https://www.tspurling.co.uk/keymap/.
 
 use crate::rmk::keycode::KeyCode;
 use crate::rmk::keycode::KeyCode::*;

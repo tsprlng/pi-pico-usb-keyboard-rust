@@ -13,3 +13,8 @@ This is an implementation of a "40%" layout -- 24 keys per hand -- with extra "l
 ![Photo of keyboard](https://www.tspurling.co.uk/computer-keyboards/build-2022.jpg)
 
 Previously I'd done [the same thing in CircuitPython](https://github.com/tsprlng/pi-pico-usb-keyboard), which works just as well and was easier to get going quickly. However, it's nice to use something lower-level for faster startup time, and to have a more straightforward single image to flash.
+
+Keymap
+------
+
+See my [interactive illustration](https://www.tspurling.co.uk/keymap/) for a brief explanation of the 40% keymap I use.
