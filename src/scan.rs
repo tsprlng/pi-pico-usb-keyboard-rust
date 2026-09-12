@@ -30,7 +30,6 @@ pub struct MatrixState {
 type ScanCode = (u8, u8);
 
 const HELD_KEYS_LIMIT: usize = 16;
-const DEFAULT_DEBOUNCE_COUNT: u8 = 5;
 
 const PEDAL_FAKE_SCANCODE: ScanCode = (ROWS as u8, 0);
 const MIC_MUTE_KEY: HidKeyCode = 198;  // bodged in here as footswitch function
@@ -211,14 +210,14 @@ impl HeldKeys {
         for maybe_key in &mut self.0 {
             if maybe_key.debounce_count > 0 {
                 if maybe_key.in_scancode == code {
-                    maybe_key.debounce_count = DEFAULT_DEBOUNCE_COUNT;
+                    maybe_key.debounce_count = mapping.debounce_count();
                     return;
                 }
             } else {
                 *maybe_key = KeyHold {
                     in_scancode: code,
                     mapping,
-                    debounce_count: DEFAULT_DEBOUNCE_COUNT,
+                    debounce_count: mapping.debounce_count(),
                 };
                 return;
             }

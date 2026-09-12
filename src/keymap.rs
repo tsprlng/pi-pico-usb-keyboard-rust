@@ -16,7 +16,7 @@ pub type HidModifiers = u8;
 type HidKey = (HidKeyCode, HidModifiers);
 
 /// A Thing which a keypress should Do
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub enum Thing {
     RealKey(HidKey),
     StenoKey(StenoPacketCode),
@@ -28,6 +28,16 @@ pub enum Thing {
     StenoToggle,
     #[default]
     Inactive,
+}
+
+impl Thing {
+    pub fn debounce_count(&self) -> u8 {
+        match *self {
+            Thing::LeftSymbolKey | Thing::RightSymbolKey | Thing::NavKey => 1,
+            Thing::RealKey((_, mods)) if mods != 0 => 2,
+            _ => 26,
+        }
+    }
 }
 
 /// How many physical rows there are
