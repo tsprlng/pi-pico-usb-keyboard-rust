@@ -5,7 +5,7 @@
 use crate::keymap::*;
 use crate::steno::Packet as StenoPacket;
 use core::mem::take;
-use embassy_futures::select::{select, select3, select_array};
+use embassy_futures::select::select_array;
 use embassy_rp::{
     gpio::{Input, OutputOpenDrain},
     pwm::{Pwm, SetDutyCycle},
@@ -57,23 +57,8 @@ pub struct Pins<'a> {
 impl Pins<'_> {
     pub(super) async fn wait_any_column(&mut self) {
         let columns = &mut self.columns;
-        let (ca,cb) = columns.split_at_mut(3);
-        let (caa,cab) = ca.split_at_mut(1);
-        let (caba,cabb) = cab.split_at_mut(1);
-        let (cba,cbb) = cb.split_at_mut(1);
-        let (cbba,cbbb) = cbb.split_at_mut(1);
-        select(
-            select3(
-                caa[0].wait_for_low(),
-                caba[0].wait_for_low(),
-                cabb[0].wait_for_low(),
-            ),
-            select3(
-                cba[0].wait_for_low(),
-                cbba[0].wait_for_low(),
-                cbbb[0].wait_for_low(),
-            ),
-        ).await;
+        let awaits = columns.each_mut().map(|c| c.wait_for_low());
+        select_array(awaits).await;
     }
 }
 
