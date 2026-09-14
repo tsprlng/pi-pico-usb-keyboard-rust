@@ -68,8 +68,16 @@ async fn main(spawner: Spawner) {
 
 #[embassy_executor::task]
 async fn run_matrix(mut matrix: scan::Matrix<'static>) {
+    let mut blanks = 0;
     loop {
         let (hid_report, steno_packet, _state) = matrix.scan();
         UPDATES_CHANNEL.send((hid_report, steno_packet)).await;
+        if hid_report == usbd_hid::descriptor::KeyboardReport::default() && steno_packet.iter().all(|s| *s==0) {
+            blanks += 1;
+        }
+        if blanks > 300 {
+            matrix.pause().await;
+            blanks = 0;
+        }
     }
 }
