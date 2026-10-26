@@ -35,7 +35,12 @@ type Update = (usbd_hid::descriptor::KeyboardReport, steno::Packet);
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
-    let p = embassy_rp::init(Default::default());
+    let mut init_config = embassy_rp::config::Config::default();
+    let mut init_clocks = embassy_rp::clocks::ClockConfig::crystal(12_000_000);
+    init_clocks.adc_clk = None;
+    init_clocks.rtc_clk = None;  // ..etc?
+    init_config.clocks = init_clocks;
+    let p = embassy_rp::init(init_config);
 
     let led_pin_onboard = Pwm::new_output_b(p.PWM_SLICE4, p.PIN_25, Default::default());
     let led_pin_front = Pwm::new_output_a(p.PWM_SLICE3, p.PIN_22, Default::default());
